@@ -40,11 +40,8 @@ namespace TestSprite2D
 TEST_CASE("[SceneTree][Sprite2D] Should construct a new Sprite2D object.")
 {
 	Sprite2D *sprite_2d = memnew(Sprite2D);
-	Ref<Texture2D> texture_2d = memnew(Texture2D);
 
-	sprite_2d->set_texture(texture_2d);
-
-	CHECK_EQ(sprite_2d->get_texture(), texture_2d);
+	CHECK(sprite_2d->get_texture() == Ref<Texture2D>());
 	CHECK_EQ(sprite_2d->get_offset(), Point2(0,0));
 	CHECK(sprite_2d->is_centered());
 	CHECK_FALSE(sprite_2d->is_flipped_h());
