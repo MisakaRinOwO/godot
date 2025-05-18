@@ -57,4 +57,4 @@ TEST_CASE("[SceneTree][Sprite2D] Should construct a new Sprite2D object.")
 	
 	memdelete(sprite_2d);
 }	
-}
+} // namespace TestSprite2D
