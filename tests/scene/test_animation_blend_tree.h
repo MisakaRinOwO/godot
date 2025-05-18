@@ -79,9 +79,6 @@ TEST_CASE("[SceneTree][AnimationBlendTree] Should correctly create an AnimationB
 
     connections = blend_tree->get_node_connection_array("output");
     CHECK_EQ(connections[0], StringName());
-
-    memdelete(blend_tree.ptr());
-
 }
 
 }
