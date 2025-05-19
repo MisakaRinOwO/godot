@@ -35,14 +35,12 @@
 #include "tests/test_macros.h"
 #include "tests/test_utils.h"
 
-namespace TestSprite2D
-{
-TEST_CASE("[SceneTree][Sprite2D] Should construct a new Sprite2D object.")
-{
+namespace TestSprite2D {
+TEST_CASE("[SceneTree][Sprite2D] Should construct a new Sprite2D object.") {
 	Sprite2D *sprite_2d = memnew(Sprite2D);
 
 	CHECK(sprite_2d->get_texture() == Ref<Texture2D>());
-	CHECK_EQ(sprite_2d->get_offset(), Point2(0,0));
+	CHECK_EQ(sprite_2d->get_offset(), Point2(0, 0));
 	CHECK(sprite_2d->is_centered());
 	CHECK_FALSE(sprite_2d->is_flipped_h());
 	CHECK_FALSE(sprite_2d->is_flipped_v());
@@ -51,7 +49,7 @@ TEST_CASE("[SceneTree][Sprite2D] Should construct a new Sprite2D object.")
 	CHECK_EQ(sprite_2d->get_frame(), 0);
 	CHECK_EQ(sprite_2d->get_frame_coords(), Vector2i(0, 0));
 	CHECK_FALSE(sprite_2d->is_region_enabled());
-	
+
 	memdelete(sprite_2d);
-}	
+}
 } // namespace TestSprite2D
