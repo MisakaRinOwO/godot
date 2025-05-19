@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  test_sprite_2d.h                                                      */
+/*  test_animation_blend_tree.h                                                      */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -35,50 +35,48 @@
 #include "tests/test_macros.h"
 #include "tests/test_utils.h"
 
-
 namespace TestAnimationBlendTree {
-TEST_CASE("[SceneTree][AnimationBlendTree] Create AnimationBlendTree and add AnimationNode")
-{
+TEST_CASE("[SceneTree][AnimationBlendTree] Create AnimationBlendTree and add AnimationNode") {
 	Ref<AnimationNodeBlendTree> blend_tree = memnew(AnimationNodeBlendTree);
 
 	// Test initial state
-    CHECK(blend_tree->has_node("output"));
-    CHECK_EQ(blend_tree->get_graph_offset(), Vector2(0, 0));
+	CHECK(blend_tree->has_node("output"));
+	CHECK_EQ(blend_tree->get_graph_offset(), Vector2(0, 0));
 	CHECK_EQ(blend_tree->get_node_list().size(), 1);
 
 	// Test adding animation node
-    Ref<AnimationNodeAnimation> anim_node = memnew(AnimationNodeAnimation);
-    anim_node->set_animation(StringName("test_animation"));
+	Ref<AnimationNodeAnimation> anim_node = memnew(AnimationNodeAnimation);
+	anim_node->set_animation(StringName("test_animation"));
 	Vector2 position(100, 100);
-    blend_tree->add_node("test_node", anim_node, position);
+	blend_tree->add_node("test_node", anim_node, position);
 
 	// Test node existence
-    CHECK(blend_tree->has_node("test_node"));
-    CHECK_EQ(blend_tree->get_node("test_node"), anim_node);
-    CHECK_EQ(blend_tree->get_node_position("test_node"), position);
+	CHECK(blend_tree->has_node("test_node"));
+	CHECK_EQ(blend_tree->get_node("test_node"), anim_node);
+	CHECK_EQ(blend_tree->get_node_position("test_node"), position);
 
 	// Test node connection on port 0
 	CHECK_EQ(blend_tree->can_connect_node("output", 0, "test_node"), AnimationNodeBlendTree::CONNECTION_OK);
-    blend_tree->connect_node("output", 0, "test_node");
+	blend_tree->connect_node("output", 0, "test_node");
 
-    Vector<StringName> connections = blend_tree->get_node_connection_array("output");
-    CHECK_EQ(connections.size(), 1);
-    CHECK_EQ(connections[0], StringName("test_node"));
+	Vector<StringName> connections = blend_tree->get_node_connection_array("output");
+	CHECK_EQ(connections.size(), 1);
+	CHECK_EQ(connections[0], StringName("test_node"));
 
 	// Test node rename
-    blend_tree->rename_node("test_node", "renamed_node");
-    CHECK_FALSE(blend_tree->has_node("test_node"));
-    CHECK(blend_tree->has_node("renamed_node"));
+	blend_tree->rename_node("test_node", "renamed_node");
+	CHECK_FALSE(blend_tree->has_node("test_node"));
+	CHECK(blend_tree->has_node("renamed_node"));
 
-    connections = blend_tree->get_node_connection_array("output");
-    CHECK_EQ(connections[0], StringName("renamed_node"));
+	connections = blend_tree->get_node_connection_array("output");
+	CHECK_EQ(connections[0], StringName("renamed_node"));
 
-    // Test node removal
-    blend_tree->remove_node("renamed_node");
-    CHECK_FALSE(blend_tree->has_node("renamed_node"));
+	// Test node removal
+	blend_tree->remove_node("renamed_node");
+	CHECK_FALSE(blend_tree->has_node("renamed_node"));
 
-    connections = blend_tree->get_node_connection_array("output");
-    CHECK_EQ(connections[0], StringName());
+	connections = blend_tree->get_node_connection_array("output");
+	CHECK_EQ(connections[0], StringName());
 }
 
-}
+} //namespace TestAnimationBlendTree
