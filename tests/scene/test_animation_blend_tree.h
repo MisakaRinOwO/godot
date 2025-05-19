@@ -37,7 +37,7 @@
 
 
 namespace TestAnimationBlendTree {
-TEST_CASE("[SceneTree][AnimationBlendTree] Should correctly create an AnimationBlendTree and being able to add AnimationNode to it.")
+TEST_CASE("[SceneTree][AnimationBlendTree] Create AnimationBlendTree and add AnimationNode")
 {
 	Ref<AnimationNodeBlendTree> blend_tree = memnew(AnimationNodeBlendTree);
 
