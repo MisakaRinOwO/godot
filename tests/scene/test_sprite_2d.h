@@ -181,10 +181,6 @@ TEST_CASE("[SceneTree][Sprite2D] Testing frames") {
 		CHECK(sprite_2d->get_frame() == 240);
 		CHECK_EQ(sprite_2d->get_frame_coords(), Vector2i(40, 2));
 
-		sprite_2d->set_frame(240);
-		CHECK(sprite_2d->get_frame() == 240);
-		CHECK_EQ(sprite_2d->get_frame_coords(), Vector2i(40, 2));
-
 		sprite_2d->set_frame(360);
 		CHECK(sprite_2d->get_frame() == 360);
 		CHECK_EQ(sprite_2d->get_frame_coords(), Vector2i(60, 3));
