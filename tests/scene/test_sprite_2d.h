@@ -36,7 +36,7 @@
 #include "tests/test_utils.h"
 
 namespace TestSprite2D {
-TEST_CASE("[SceneTree][Sprite2D] Should construct a new Sprite2D object.") {
+TEST_CASE("[SceneTree][Sprite2D] Constructor") {
 	Sprite2D *sprite_2d = memnew(Sprite2D);
 
 	CHECK(sprite_2d->get_texture() == Ref<Texture2D>());
@@ -52,12 +52,16 @@ TEST_CASE("[SceneTree][Sprite2D] Should construct a new Sprite2D object.") {
 
 	memdelete(sprite_2d);
 }
-TEST_CASE("[SceneTree][Sprite2D] Testing frames") {
+
+TEST_CASE("[SceneTree][Sprite2D] Frames") {
 	Sprite2D *sprite_2d = memnew(Sprite2D);
 
 	SUBCASE("Invalid range") {
-		CHECK_THROWS(sprite_2d->set_frame(30));
-		CHECK_THROWS(sprite_2d->set_frame(-1));
+		ERR_PRINT_OFF;
+		sprite_2d->set_frame(30);
+		sprite_2d->set_frame(-1);
+		ERR_PRINT_ON;
+		CHECK(sprite_2d->get_frame() == 0);
 	}
 
 	SUBCASE("Base value") {
@@ -197,7 +201,7 @@ TEST_CASE("[SceneTree][Sprite2D] Testing frames") {
 	memdelete(sprite_2d);
 }
 
-TEST_CASE("[SceneTree][Sprite2D] Flip testing") {
+TEST_CASE("[SceneTree][Sprite2D] Flipping") {
 	Sprite2D *sprite_2d = memnew(Sprite2D);
 
 	SUBCASE("Both False") {
@@ -231,6 +235,7 @@ TEST_CASE("[SceneTree][Sprite2D] Flip testing") {
 
 	memdelete(sprite_2d);
 }
+
 TEST_CASE("[SceneTree][Sprite2D] Offset") {
 	Sprite2D *sprite_2d = memnew(Sprite2D);
 
