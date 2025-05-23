@@ -36,6 +36,7 @@
 #include "tests/test_utils.h"
 
 namespace TestSprite2D {
+
 TEST_CASE("[SceneTree][Sprite2D] Constructor") {
 	Sprite2D *sprite_2d = memnew(Sprite2D);
 
@@ -262,4 +263,5 @@ TEST_CASE("[SceneTree][Sprite2D] Offset") {
 
 	memdelete(sprite_2d);
 }
+
 } // namespace TestSprite2D
