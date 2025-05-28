@@ -364,6 +364,16 @@ void ViewportRotationControl::_draw_axis(const Axis2D &p_axis) {
 		// Draw an outline around the negative axes.
 		draw_circle(p_axis.screen_point, AXIS_CIRCLE_RADIUS, c, true, -1.0, true);
 		draw_circle(p_axis.screen_point, AXIS_CIRCLE_RADIUS * 0.8, c.darkened(0.4), true, -1.0, true);
+
+		// Draw the axis letter for the negative axes.
+		const String axis_name = direction == 0 ? "-X" : (direction == 1 ? "-Y" : "-Z");
+		const Ref<Font> &font = get_theme_font(SNAME("rotation_control"), EditorStringName(EditorFonts));
+		const int font_size = get_theme_font_size(SNAME("rotation_control_size"), EditorStringName(EditorFonts));
+		const Size2 char_size = font->get_char_size(axis_name[0], font_size);
+		const Vector2 char_offset = Vector2(-char_size.width / 2.0, char_size.height * 0.25);
+
+		// Needs to be a string to include the "-" signs. WIP
+		draw_string(font, p_axis.screen_point + char_offset, axis_name, HORIZONTAL_ALIGNMENT_CENTER, -1.0F, font_size, Color(0.0, 0.0, 0.0, alpha * 0.6));
 	}
 }
 
