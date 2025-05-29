@@ -343,6 +343,9 @@ void ViewportRotationControl::_draw_axis(const Axis2D &p_axis) {
 	const double alpha = focused ? 1.0 : Math::remap((p_axis.z_axis + 1.0) / 2.0, 0, 0.5, min_alpha, 1.0);
 	const Color c = focused ? Color(axis_color.lightened(0.75), 1.0) : Color(axis_color, alpha);
 
+	// Reveal negative axes when highlighted.
+	const Color c_op = focused ? Color(0.0, 0.0, 0.0, alpha * 0.8) : Color(axis_color, 0);
+
 	if (positive) {
 		// Draw axis lines for the positive axes.
 		const Vector2 center = get_size() / 2.0;
@@ -372,8 +375,8 @@ void ViewportRotationControl::_draw_axis(const Axis2D &p_axis) {
 		const Size2 char_size = font->get_char_size(axis_name[0], font_size);
 		const Vector2 char_offset = Vector2(-char_size.width / 2.0, char_size.height * 0.25);
 
-		// Needs to be a string to include the "-" signs. WIP
-		draw_string(font, p_axis.screen_point + char_offset, axis_name, HORIZONTAL_ALIGNMENT_CENTER, -1.0F, font_size, Color(0.0, 0.0, 0.0, alpha * 0.6));
+		// Draw string for negative axes.
+		draw_string(font, p_axis.screen_point + (char_offset - Vector2(8.0, 0.0)), axis_name, HORIZONTAL_ALIGNMENT_LEFT, -1.0F, font_size, c_op);
 	}
 }
 
