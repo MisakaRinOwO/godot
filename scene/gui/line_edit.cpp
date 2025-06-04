@@ -537,7 +537,6 @@ void LineEdit::gui_input(const Ref<InputEvent> &p_event) {
 				emit_signal(SNAME("editing_toggled"), true);
 				return;
 			}
-			queue_redraw();
 
 		} else {
 			if (selection.enabled && !pass && b->get_button_index() == MouseButton::LEFT && DisplayServer::get_singleton()->has_feature(DisplayServer::FEATURE_CLIPBOARD_PRIMARY)) {
@@ -3306,6 +3305,8 @@ void LineEdit::_bind_methods() {
 	BIND_THEME_ITEM_CUSTOM(Theme::DATA_TYPE_ICON, LineEdit, clear_icon, "clear");
 	BIND_THEME_ITEM(Theme::DATA_TYPE_COLOR, LineEdit, clear_button_color);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_COLOR, LineEdit, clear_button_color_pressed);
+
+	ADD_CLASS_DEPENDENCY("PopupMenu");
 }
 
 LineEdit::LineEdit(const String &p_placeholder) {
