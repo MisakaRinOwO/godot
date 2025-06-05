@@ -223,6 +223,10 @@ private:
 	MeshInstance3D *ruler_line = nullptr;
 	MeshInstance3D *ruler_line_xray = nullptr;
 	Label *ruler_label = nullptr;
+    Label *ruler_label_x = nullptr;
+    Label *ruler_label_y = nullptr;
+    Label *ruler_label_z = nullptr;
+    Label *ruler_label_x_z = nullptr;
 	Ref<StandardMaterial3D> ruler_material;
 
 	Ref<StandardMaterial3D> ruler_material_x;

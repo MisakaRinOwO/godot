@@ -1990,6 +1990,10 @@ void Node3DEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 						ruler_start_point->set_visible(false);
 						ruler_end_point->set_visible(false);
 						ruler_label->set_visible(false);
+						ruler_label_x->set_visible(false);
+						ruler_label_y->set_visible(false);
+						ruler_label_z->set_visible(false);
+						ruler_label_x_z->set_visible(false);
 						collision_reposition = false;
 						break;
 					}
@@ -3030,11 +3034,43 @@ void Node3DEditorViewport::_notification(int p_what) {
 				geometry->surface_end();
 
 				float distance = start_pos.distance_to(end_pos);
-				ruler_label->set_text(TS->format_number(vformat("%.3f m", distance)));
+				ruler_label->set_text(TS->format_number(vformat("r: %.3f m", distance)));
+
+                float distance_x = fabsf(end_pos.x - start_pos.x);
+                float distance_y = fabsf(end_pos.y - start_pos.y);
+                float distance_z = fabsf(end_pos.z - start_pos.z);
+                float distance_x_z = sqrtf(distance_x*distance_x + distance_z*distance_z);
+
+                ruler_label_x->set_text(TS->format_number(vformat("x: %.3f m", distance_x)));
+                ruler_label_y->set_text(TS->format_number(vformat("y: %.3f m", distance_y)));
+                ruler_label_z->set_text(TS->format_number(vformat("z: %.3f m", distance_z)));
+                ruler_label_x_z->set_text(TS->format_number(vformat("x-z: %.3f m", distance_x_z)));
 
 				Vector3 center = (start_pos + end_pos) / 2;
 				Vector2 screen_position = camera->unproject_position(center) - (ruler_label->get_custom_minimum_size() / 2);
 				ruler_label->set_position(screen_position);
+
+                Vector3 diff = (end_pos - start_pos) / 2;
+
+                Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z); 
+                Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
+                if (start_pos.y > end_pos.y) {
+                    y_center = Vector3(start_pos.x, start_pos.y + diff.y, start_pos.z);
+                }
+                Vector3 z_center = Vector3(end_pos.x, min_y, start_pos.z + diff.z);
+                Vector3 x_z_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z + diff.z);
+
+                Vector2 x_screen_pos = camera->unproject_position(x_center) - (ruler_label_x->get_custom_minimum_size() / 2);
+                Vector2 y_screen_pos = camera->unproject_position(y_center) - (ruler_label_y->get_custom_minimum_size() / 2);
+                Vector2 z_screen_pos = camera->unproject_position(z_center) - (ruler_label_z->get_custom_minimum_size() / 2);
+                Vector2 x_z_screen_pos = camera->unproject_position(x_z_center) - (ruler_label_x_z->get_custom_minimum_size() / 2);
+
+
+                ruler_label_x->set_position(x_screen_pos);
+                ruler_label_y->set_position(y_screen_pos);
+                ruler_label_z->set_position(z_screen_pos);
+                ruler_label_x_z->set_position(x_z_screen_pos);
+
 			}
 
 			real_t delta = get_process_delta_time();
@@ -3283,6 +3319,10 @@ void Node3DEditorViewport::_notification(int p_what) {
 						ruler_start_point->set_visible(true);
 						ruler_end_point->set_visible(true);
 						ruler_label->set_visible(true);
+                        ruler_label_x->set_visible(true);
+                        ruler_label_y->set_visible(true);
+                        ruler_label_z->set_visible(true);
+                        ruler_label_x_z->set_visible(true);
 					}
 				}
 			}
@@ -3360,6 +3400,31 @@ void Node3DEditorViewport::_notification(int p_what) {
 			ruler_label->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			ruler_label->add_theme_font_size_override(SceneStringName(font_size), 15 * EDSCALE);
 			ruler_label->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
+			ruler_label_x->add_theme_color_override(SceneStringName(font_color), Color(0.96, 0.20, 0.32, 1.0));
+			ruler_label_x->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			ruler_label_x->add_theme_constant_override("outline_size", 4 * EDSCALE);
+			ruler_label_x->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
+			ruler_label_x->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
+			ruler_label_y->add_theme_color_override(SceneStringName(font_color), Color(0.53, 0.84, 0.01, 1.0));
+			ruler_label_y->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			ruler_label_y->add_theme_constant_override("outline_size", 4 * EDSCALE);
+			ruler_label_y->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
+			ruler_label_y->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
+			ruler_label_z->add_theme_color_override(SceneStringName(font_color), Color(0.16, 0.55, 0.96, 1.0));
+			ruler_label_z->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			ruler_label_z->add_theme_constant_override("outline_size", 4 * EDSCALE);
+			ruler_label_z->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
+			ruler_label_z->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
+			ruler_label_x_z->add_theme_color_override(SceneStringName(font_color), Color(0.56, 0.375, 0.64, 1.0));
+			ruler_label_x_z->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			ruler_label_x_z->add_theme_constant_override("outline_size", 4 * EDSCALE);
+			ruler_label_x_z->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
+			ruler_label_x_z->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
 		} break;
 
 		case NOTIFICATION_DRAG_END: {
@@ -6021,12 +6086,28 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	ruler_label = memnew(Label);
 	ruler_label->set_visible(false);
 
+	ruler_label_x = memnew(Label);
+	ruler_label_x->set_visible(false);
+
+	ruler_label_y = memnew(Label);
+	ruler_label_y->set_visible(false);
+
+	ruler_label_z = memnew(Label);
+	ruler_label_z->set_visible(false);
+
+	ruler_label_x_z = memnew(Label);
+	ruler_label_x_z->set_visible(false);
+
 	ruler->add_child(ruler_start_point);
 	ruler->add_child(ruler_end_point);
 	ruler->add_child(ruler_line);
 	ruler->add_child(ruler_line_xray);
 
 	viewport->add_child(ruler_label);
+	viewport->add_child(ruler_label_x);
+	viewport->add_child(ruler_label_y);
+	viewport->add_child(ruler_label_z);
+	viewport->add_child(ruler_label_x_z);
 
 	view_type = VIEW_TYPE_USER;
 	_update_name();
