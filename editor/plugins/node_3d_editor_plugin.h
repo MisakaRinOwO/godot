@@ -224,7 +224,15 @@ private:
 	MeshInstance3D *ruler_line_xray = nullptr;
 	Label *ruler_label = nullptr;
 	Ref<StandardMaterial3D> ruler_material;
+
+	Ref<StandardMaterial3D> ruler_material_x;
+	Ref<StandardMaterial3D> ruler_material_y;
+	Ref<StandardMaterial3D> ruler_material_z;
+
 	Ref<StandardMaterial3D> ruler_material_xray;
+	Ref<StandardMaterial3D> ruler_material_x_xray;
+	Ref<StandardMaterial3D> ruler_material_y_xray;
+	Ref<StandardMaterial3D> ruler_material_z_xray;
 
 	int index;
 	ViewType view_type;

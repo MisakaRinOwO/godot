@@ -3010,19 +3010,19 @@ void Node3DEditorViewport::_notification(int p_what) {
 				// Add vertices for vertical helper triangle
 				float min_y = MIN(start_pos.y, end_pos.y);
 				// Horizontal helper line
-				geometry->surface_add_vertex(Vector3(start_pos.x, min_y ,start_pos.z));
-				geometry->surface_add_vertex(Vector3(end_pos.x, min_y ,end_pos.z));
+				geometry->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
+				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
 				// Vertical helper line
 				if (start_pos.y > end_pos.y) {
 					geometry->surface_add_vertex(start_pos);
-					geometry->surface_add_vertex(Vector3(start_pos.x, min_y ,start_pos.z));
+					geometry->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
 				} else {
 					geometry->surface_add_vertex(end_pos);
-					geometry->surface_add_vertex(Vector3(end_pos.x, min_y ,end_pos.z));
+					geometry->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
 				}
 				// Add vertices for horizontal helper triangle
 				// X helper line
-				geometry->surface_add_vertex(Vector3(start_pos.x, min_y ,start_pos.z));
+				geometry->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
 				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
 				// Z helper line
 				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
@@ -5948,6 +5948,7 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	ruler_end_point = memnew(Node3D);
 	ruler_end_point->set_visible(false);
 
+	// Main material (Yellow)
 	ruler_material.instantiate();
 	ruler_material->set_albedo(Color(1.0, 0.9, 0.0, 1.0));
 	ruler_material->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
@@ -5961,6 +5962,51 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	ruler_material_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
 	ruler_material_xray->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA);
 	ruler_material_xray->set_render_priority(BaseMaterial3D::RENDER_PRIORITY_MAX);
+
+	// X materials (Red)
+	ruler_material_x.instantiate();
+	ruler_material_x->set_albedo(Color(1.0, 0.0, 0.0, 1.0));
+	ruler_material_x->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
+	ruler_material_x->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	ruler_material_x->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_DISABLED);
+
+	ruler_material_x_xray.instantiate();
+	ruler_material_x_xray->set_albedo(Color(1.0, 0.0, 0.0, 0.15));
+	ruler_material_x_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
+	ruler_material_x_xray->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	ruler_material_x_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
+	ruler_material_x_xray->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA);
+	ruler_material_x_xray->set_render_priority(BaseMaterial3D::RENDER_PRIORITY_MAX);
+
+	// Y materials (Green)
+	ruler_material_y.instantiate();
+	ruler_material_y->set_albedo(Color(0.0, 1.0, 0.0, 1.0));
+	ruler_material_y->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
+	ruler_material_y->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	ruler_material_y->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_DISABLED);
+
+	ruler_material_y_xray.instantiate();
+	ruler_material_y_xray->set_albedo(Color(0.0, 1.0, 0.0, 0.15));
+	ruler_material_y_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
+	ruler_material_y_xray->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	ruler_material_y_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
+	ruler_material_y_xray->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA);
+	ruler_material_y_xray->set_render_priority(BaseMaterial3D::RENDER_PRIORITY_MAX);
+
+	// Z materials (Blue)
+	ruler_material_z.instantiate();
+	ruler_material_z->set_albedo(Color(0.0, 0.0, 1.0, 1.0));
+	ruler_material_z->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
+	ruler_material_z->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	ruler_material_z->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_DISABLED);
+
+	ruler_material_z_xray.instantiate();
+	ruler_material_z_xray->set_albedo(Color(0.0, 0.0, 1.0, 0.15));
+	ruler_material_z_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
+	ruler_material_z_xray->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	ruler_material_z_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
+	ruler_material_z_xray->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA);
+	ruler_material_z_xray->set_render_priority(BaseMaterial3D::RENDER_PRIORITY_MAX);
 
 	geometry.instantiate();
 
