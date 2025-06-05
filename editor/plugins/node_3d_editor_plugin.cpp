@@ -3007,11 +3007,12 @@ void Node3DEditorViewport::_notification(int p_what) {
 				geometry->surface_begin(Mesh::PRIMITIVE_LINES);
 				geometry->surface_add_vertex(start_pos);
 				geometry->surface_add_vertex(end_pos);
-				// Add vertices of bottom line to draw list
+				// Add vertices for vertical helper triangle
 				float min_y = MIN(start_pos.y, end_pos.y);
+				// Horizontal helper line
 				geometry->surface_add_vertex(Vector3(start_pos.x, min_y ,start_pos.z));
 				geometry->surface_add_vertex(Vector3(end_pos.x, min_y ,end_pos.z));
-				// Add vertices of vertical line to draw list
+				// Vertical helper line
 				if (start_pos.y > end_pos.y) {
 					geometry->surface_add_vertex(start_pos);
 					geometry->surface_add_vertex(Vector3(start_pos.x, min_y ,start_pos.z));
@@ -3019,6 +3020,13 @@ void Node3DEditorViewport::_notification(int p_what) {
 					geometry->surface_add_vertex(end_pos);
 					geometry->surface_add_vertex(Vector3(end_pos.x, min_y ,end_pos.z));
 				}
+				// Add vertices for horizontal helper triangle
+				// X helper line
+				geometry->surface_add_vertex(Vector3(start_pos.x, min_y ,start_pos.z));
+				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
+				// Z helper line
+				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
+				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
 				geometry->surface_end();
 
 				float distance = start_pos.distance_to(end_pos);
