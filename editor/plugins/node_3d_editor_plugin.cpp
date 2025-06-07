@@ -3023,130 +3023,167 @@ void Node3DEditorViewport::_notification(int p_what) {
 
 				geometry->surface_end();
 
+				// Calculate ruler label position
 				float distance = start_pos.distance_to(end_pos);
 				ruler_label->set_text(TS->format_number(vformat("r: %.3f m", distance)));
 				Vector3 center = (start_pos + end_pos) / 2;
 				Vector2 screen_position = camera->unproject_position(center) - (ruler_label->get_custom_minimum_size() / 2);
 				ruler_label->set_position(screen_position);
-                
-                bool show_components = Input::get_singleton()->is_key_pressed(Key::SHIFT);
 
-                if (show_components) {
+				bool show_components = Input::get_singleton()->is_key_pressed(Key::SHIFT);
 
+				// Add vertices for helper lines
+				if (show_components) {
+					// XZ helper line
+					if (abs(start_pos.z - end_pos.z) > 0.0001 && abs(start_pos.x - end_pos.x) > 0.0001) {
+						geometry_x_z->surface_begin(Mesh::PRIMITIVE_LINES);
+						geometry_x_z->surface_add_vertex(start_pos);
+						geometry_x_z->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
+						geometry_x_z->surface_end();
+					}
 
-                    // XZ helper line
-                    if (abs(start_pos.z - end_pos.z) > 0.0001 && abs(start_pos.x - end_pos.x) > 0.0001) {
-                        geometry_x_z->surface_begin(Mesh::PRIMITIVE_LINES);
-                        geometry_x_z->surface_add_vertex(start_pos);
-                        geometry_x_z->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
-                        geometry_x_z->surface_end();
-                    }
+					// Y helper line
+					geometry_y->surface_begin(Mesh::PRIMITIVE_LINES);
 
-                    // Y helper line
-                    geometry_y->surface_begin(Mesh::PRIMITIVE_LINES);
+					geometry_y->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
+					geometry_y->surface_add_vertex(end_pos);
+					geometry_y->surface_end();
 
-                    geometry_y->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
-                    geometry_y->surface_add_vertex(end_pos);
-                    geometry_y->surface_end();
+					// X helper line
+					geometry_x->surface_begin(Mesh::PRIMITIVE_LINES);
+					geometry_x->surface_add_vertex(Vector3(start_pos.x, start_pos.y, end_pos.z));
+					geometry_x->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
+					geometry_x->surface_end();
 
-                    // X helper line
-                    geometry_x->surface_begin(Mesh::PRIMITIVE_LINES);
-                    geometry_x->surface_add_vertex(Vector3(start_pos.x, start_pos.y, end_pos.z));
-                    geometry_x->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
-                    geometry_x->surface_end();
+					// Z helper line
+					geometry_z->surface_begin(Mesh::PRIMITIVE_LINES);
+					geometry_z->surface_add_vertex(Vector3(start_pos.x, start_pos.y, end_pos.z));
+					geometry_z->surface_add_vertex(Vector3(start_pos.x, start_pos.y, start_pos.z));
+					geometry_z->surface_end();
 
-                    // Z helper line
-                    geometry_z->surface_begin(Mesh::PRIMITIVE_LINES);
-                    geometry_z->surface_add_vertex(Vector3(start_pos.x, start_pos.y, end_pos.z));
-                    geometry_z->surface_add_vertex(Vector3(start_pos.x, start_pos.y, start_pos.z));
-                    geometry_z->surface_end();
+					// Calculate ruler measurements
+					float distance_x = abs(end_pos.x - start_pos.x);
+					float distance_y = abs(end_pos.y - start_pos.y);
+					float distance_z = abs(end_pos.z - start_pos.z);
+					float distance_x_z = sqrt(distance_x * distance_x + distance_z * distance_z);
 
-                    // Calculate ruler measurements
-                    float distance_x = abs(end_pos.x - start_pos.x);
-                    float distance_y = abs(end_pos.y - start_pos.y);
-                    float distance_z = abs(end_pos.z - start_pos.z);
-                    float distance_x_z = sqrt(distance_x * distance_x + distance_z * distance_z);
+					// Calculate angles
+					float angle_phi_1 = atan(distance_x / distance_z) * 180 / Math::PI;
+					float angle_phi_2 = 90 - angle_phi_1;
+					float angle_theta_1 = atan(distance_y / distance_x_z) * 180 / Math::PI;
+					float angle_theta_2 = 90 - angle_theta_1;
 
-                    // Angle calculations
-                    float angle_phi_1 = atan(distance_x / distance_z) * 180 / Math::PI;
-                    float angle_phi_2 = 90 - angle_phi_1;
-                    float angle_theta_1 = atan(distance_y / distance_x_z) * 180 / Math::PI;
-                    float angle_theta_2 = 90 - angle_theta_1;
+					// Set label value
+					ruler_label_x->set_text(TS->format_number(vformat("x: %.3f m", distance_x)));
+					ruler_label_y->set_text(TS->format_number(vformat("y: %.3f m", distance_y)));
+					ruler_label_z->set_text(TS->format_number(vformat("z: %.3f m", distance_z)));
+					ruler_label_x_z->set_text(TS->format_number(vformat("x-z: %.3f m", distance_x_z)));
 
-                    // Set label value
-                    ruler_label_x->set_text(TS->format_number(vformat("x: %.3f m", distance_x)));
-                    ruler_label_y->set_text(TS->format_number(vformat("y: %.3f m", distance_y)));
-                    ruler_label_z->set_text(TS->format_number(vformat("z: %.3f m", distance_z)));
-                    ruler_label_x_z->set_text(TS->format_number(vformat("x-z: %.3f m", distance_x_z)));
+					angle_label_theta_1->set_text(TS->format_number(vformat("%.3f%c", angle_theta_1, 176)));
+					angle_label_theta_2->set_text(TS->format_number(vformat("%.3f%c", angle_theta_2, 176)));
+					angle_label_phi_1->set_text(TS->format_number(vformat("%.3f%c", angle_phi_1, 176)));
+					angle_label_phi_2->set_text(TS->format_number(vformat("%.3f%c", angle_phi_2, 176)));
 
-                    angle_label_theta_1->set_text(TS->format_number(vformat("%.3f%c", angle_theta_1, 176)));
-                    angle_label_theta_2->set_text(TS->format_number(vformat("%.3f%c", angle_theta_2, 176)));
-                    angle_label_phi_1->set_text(TS->format_number(vformat("%.3f%c", angle_phi_1, 176)));
-                    angle_label_phi_2->set_text(TS->format_number(vformat("%.3f%c", angle_phi_2, 176)));
+					// Calculate helper label position
+					Vector3 diff = (end_pos - start_pos) / 2;
 
-                    // Hide XZ label when stacking over
-                    if (distance_x <= 0.0001 || distance_z <= 0.0001 || distance_y <= 0.0001) {
-                        ruler_label_x_z->set_visible(false);
-                    } else {
-                        ruler_label_x_z->set_visible(true);
-                    }
+					Vector3 x_center = Vector3(start_pos.x + diff.x, start_pos.y, end_pos.z);
+					Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
+					Vector3 z_center = Vector3(start_pos.x, start_pos.y, start_pos.z + diff.z);
+					Vector3 x_z_center = Vector3(start_pos.x + diff.x, start_pos.y, start_pos.z + diff.z);
 
-                    // Calculate label position
+					const float angle_label_offset = 0.15f;
 
-                    Vector3 diff = (end_pos - start_pos) / 2;
+					Vector3 label_pos_theta_1 = angle_label_offset * (y_center - start_pos) + start_pos;
+					Vector3 label_pos_theta_2 = angle_label_offset * (x_z_center - end_pos) + end_pos;
+					Vector3 label_pos_phi_1 = angle_label_offset * (x_center - start_pos) + start_pos;
+					Vector3 label_pos_phi_2 = angle_label_offset * (z_center - Vector3(end_pos.x, start_pos.y, end_pos.z)) + Vector3(end_pos.x, start_pos.y, end_pos.z);
 
-                    Vector3 x_center = Vector3(start_pos.x + diff.x, start_pos.y, end_pos.z);
-                    Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
-                    Vector3 z_center = Vector3(start_pos.x, start_pos.y, start_pos.z + diff.z);
-                    Vector3 x_z_center = Vector3(start_pos.x + diff.x, start_pos.y, start_pos.z + diff.z);
+					Vector2 x_screen_pos = camera->unproject_position(x_center) - (ruler_label_x->get_custom_minimum_size() / 2);
+					Vector2 y_screen_pos = camera->unproject_position(y_center) - (ruler_label_y->get_custom_minimum_size() / 2);
+					Vector2 z_screen_pos = camera->unproject_position(z_center) - (ruler_label_z->get_custom_minimum_size() / 2);
+					Vector2 x_z_screen_pos = camera->unproject_position(x_z_center) - (ruler_label_x_z->get_custom_minimum_size() / 2);
 
-                    const float angle_label_offset = 0.15f;
+					Vector2 angle_theta_1_screen_pos = camera->unproject_position(label_pos_theta_1) - (angle_label_theta_1->get_custom_minimum_size() / 2);
+					Vector2 angle_theta_2_screen_pos = camera->unproject_position(label_pos_theta_2) - (angle_label_theta_2->get_custom_minimum_size() / 2);
+					Vector2 angle_phi_1_screen_pos = camera->unproject_position(label_pos_phi_1) - (angle_label_phi_1->get_custom_minimum_size() / 2);
+					Vector2 angle_phi_2_screen_pos = camera->unproject_position(label_pos_phi_2) - (angle_label_phi_2->get_custom_minimum_size() / 2);
 
-                    Vector3 label_pos_theta_1 = angle_label_offset * (y_center - start_pos) + start_pos;
-                    Vector3 label_pos_theta_2 = angle_label_offset * (x_z_center - end_pos) + end_pos;
-                    Vector3 label_pos_phi_1 = angle_label_offset * (x_center - start_pos) + start_pos;
-                    Vector3 label_pos_phi_2 = angle_label_offset * (z_center - Vector3(end_pos.x, start_pos.y, end_pos.z)) + Vector3(end_pos.x, start_pos.y, end_pos.z);
-
-                    Vector2 x_screen_pos = camera->unproject_position(x_center) - (ruler_label_x->get_custom_minimum_size() / 2);
-                    Vector2 y_screen_pos = camera->unproject_position(y_center) - (ruler_label_y->get_custom_minimum_size() / 2);
-                    Vector2 z_screen_pos = camera->unproject_position(z_center) - (ruler_label_z->get_custom_minimum_size() / 2);
-                    Vector2 x_z_screen_pos = camera->unproject_position(x_z_center) - (ruler_label_x_z->get_custom_minimum_size() / 2);
-
-                    Vector2 angle_theta_1_screen_pos = camera->unproject_position(label_pos_theta_1) - (angle_label_theta_1->get_custom_minimum_size() / 2);
-                    Vector2 angle_theta_2_screen_pos = camera->unproject_position(label_pos_theta_2) - (angle_label_theta_2->get_custom_minimum_size() / 2);
-                    Vector2 angle_phi_1_screen_pos = camera->unproject_position(label_pos_phi_1) - (angle_label_phi_1->get_custom_minimum_size() / 2);
-                    Vector2 angle_phi_2_screen_pos = camera->unproject_position(label_pos_phi_2) - (angle_label_phi_2->get_custom_minimum_size() / 2);
-
-                    // Set labels position
-                    ruler_label_x->set_position(x_screen_pos);
-                    ruler_label_y->set_position(y_screen_pos);
-                    ruler_label_z->set_position(z_screen_pos);
-                    ruler_label_x_z->set_position(x_z_screen_pos);
-                    angle_label_theta_1->set_position(angle_theta_1_screen_pos);
-                    angle_label_theta_2->set_position(angle_theta_2_screen_pos);
-                    angle_label_phi_1->set_position(angle_phi_1_screen_pos);
-                    angle_label_phi_2->set_position(angle_phi_2_screen_pos);
+					// Set labels position
+					ruler_label_x->set_position(x_screen_pos);
+					ruler_label_y->set_position(y_screen_pos);
+					ruler_label_z->set_position(z_screen_pos);
+					ruler_label_x_z->set_position(x_z_screen_pos);
+					angle_label_theta_1->set_position(angle_theta_1_screen_pos);
+					angle_label_theta_2->set_position(angle_theta_2_screen_pos);
+					angle_label_phi_1->set_position(angle_phi_1_screen_pos);
+					angle_label_phi_2->set_position(angle_phi_2_screen_pos);
 
 					ruler_label_x->set_visible(true);
-                    ruler_label_y->set_visible(true);
-                    ruler_label_z->set_visible(true);
+					ruler_label_y->set_visible(true);
+					ruler_label_z->set_visible(true);
 
-                    angle_label_theta_1->set_visible(true);
-                    angle_label_theta_2->set_visible(true);
-                    angle_label_phi_1->set_visible(true);
-                    angle_label_phi_2->set_visible(true);
-                }
-                else {
+					angle_label_theta_1->set_visible(true);
+					angle_label_theta_2->set_visible(true);
+					angle_label_phi_1->set_visible(true);
+					angle_label_phi_2->set_visible(true);
+
+					// Hide angle label on 0 or 90(on 2d plane)
+					if (angle_theta_1 <= 0.0001 || abs(90.0 - angle_theta_1) <= 0.0001) {
+						angle_label_theta_1->set_visible(false);
+					} else {
+						angle_label_theta_2->set_visible(true);
+					}
+					if (angle_theta_2 <= 0.0001 || abs(90.0 - angle_theta_2) <= 0.0001) {
+						angle_label_theta_2->set_visible(false);
+					} else {
+						angle_label_theta_1->set_visible(true);
+					}
+					if (angle_phi_1 <= 0.0001 || abs(90.0 - angle_phi_1) <= 0.0001) {
+						angle_label_phi_1->set_visible(false);
+					} else {
+						angle_label_phi_1->set_visible(true);
+					}
+					if (angle_phi_2 <= 0.0001 || abs(90.0 - angle_phi_2) <= 0.0001) {
+						angle_label_phi_2->set_visible(false);
+					} else {
+						angle_label_phi_2->set_visible(true);
+					}
+
+					// Hide XZ label when stacking over
+					if (distance_x <= 0.0001 || distance_z <= 0.0001 || distance_y <= 0.0001) {
+						ruler_label_x_z->set_visible(false);
+					} else {
+						ruler_label_x_z->set_visible(true);
+					}
+
+					// Hide measurement label on 0
+					if (distance_x <= 0.0001) {
+						ruler_label_x->set_visible(false);
+					} else {
+						ruler_label_x->set_visible(true);
+					}
+					if (distance_y <= 0.0001) {
+						ruler_label_y->set_visible(false);
+					} else {
+						ruler_label_y->set_visible(true);
+					}
+					if (distance_z <= 0.0001) {
+						ruler_label_z->set_visible(false);
+					} else {
+						ruler_label_z->set_visible(true);
+					}
+				} else {
 					ruler_label_x->set_visible(false);
-                    ruler_label_y->set_visible(false);
-                    ruler_label_z->set_visible(false);
-                    ruler_label_x_z->set_visible(false);
+					ruler_label_y->set_visible(false);
+					ruler_label_z->set_visible(false);
+					ruler_label_x_z->set_visible(false);
 
-                    angle_label_theta_1->set_visible(false);
-                    angle_label_theta_2->set_visible(false);
-                    angle_label_phi_1->set_visible(false);
-                    angle_label_phi_2->set_visible(false);
-                }
+					angle_label_theta_1->set_visible(false);
+					angle_label_theta_2->set_visible(false);
+					angle_label_phi_1->set_visible(false);
+					angle_label_phi_2->set_visible(false);
+				}
 			}
 
 			real_t delta = get_process_delta_time();
