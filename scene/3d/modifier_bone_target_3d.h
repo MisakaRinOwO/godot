@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  hash_map.cpp                                                          */
+/*  modifier_bone_target_3d.h                                             */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,16 +28,25 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "hash_map.h"
+#pragma once
 
-#include "core/variant/variant.h"
+#include "scene/3d/skeleton_modifier_3d.h"
 
-bool _hashmap_variant_less_than(const Variant &p_left, const Variant &p_right) {
-	bool valid = false;
-	Variant res;
-	Variant::evaluate(Variant::OP_LESS, p_left, p_right, res, valid);
-	if (!valid) {
-		res = false;
-	}
-	return res;
-}
+class ModifierBoneTarget3D : public SkeletonModifier3D {
+	GDCLASS(ModifierBoneTarget3D, SkeletonModifier3D);
+
+	String bone_name;
+	int bone = -1;
+
+protected:
+	void _validate_property(PropertyInfo &p_property) const;
+	virtual void _validate_bone_names() override;
+	static void _bind_methods();
+	virtual void _process_modification(double p_delta) override;
+
+public:
+	void set_bone_name(const String &p_bone_name);
+	String get_bone_name() const;
+	void set_bone(int p_bone);
+	int get_bone() const;
+};
