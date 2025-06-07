@@ -3056,22 +3056,22 @@ void Node3DEditorViewport::_notification(int p_what) {
 				geometry_z->surface_end();
 
 				geometry->surface_end();
-				float distance = start_pos.distance_to(end_pos);
-				ruler_label->set_text(TS->format_number(vformat("r: %.3f m", distance)));
 
-				// Distance calculations for Ruler
+				// Calculate ruler measurements
+				float distance = start_pos.distance_to(end_pos);
 				float distance_x = abs(end_pos.x - start_pos.x);
 				float distance_y = abs(end_pos.y - start_pos.y);
 				float distance_z = abs(end_pos.z - start_pos.z);
 				float distance_x_z = sqrt(distance_x * distance_x + distance_z * distance_z);
 
-				// Angle calculations
+				// Calculate angles
 				float angle_theta_1 = atan(distance_x / distance_y) * 180 / Math::PI;
 				float angle_theta_2 = 90 - angle_theta_1;
 				float angle_phi_1 = atan(distance_y / distance_z) * 180 / Math::PI;
 				float angle_phi_2 = 90 - angle_phi_1;
 
-				// Ruler labels
+				// Set label value
+				ruler_label->set_text(TS->format_number(vformat("r: %.3f m", distance)));
 				ruler_label_x->set_text(TS->format_number(vformat("x: %.3f m", distance_x)));
 				ruler_label_y->set_text(TS->format_number(vformat("y: %.3f m", distance_y)));
 				ruler_label_z->set_text(TS->format_number(vformat("z: %.3f m", distance_z)));
@@ -3089,7 +3089,10 @@ void Node3DEditorViewport::_notification(int p_what) {
 					ruler_label_x_z->set_visible(true);
 				}
 
-				// Midpoint for labels
+				// Calculate label position
+				Vector3 center = (start_pos + end_pos) / 2;
+				Vector2 screen_position = camera->unproject_position(center) - (ruler_label->get_custom_minimum_size() / 2);
+
 				Vector3 diff = (end_pos - start_pos) / 2;
 
 				Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z);
@@ -3102,13 +3105,11 @@ void Node3DEditorViewport::_notification(int p_what) {
 
 				const float angle_label_offset = 0.15f;
 
-				// Label position calculation
 				Vector3 label_pos_theta_1 = angle_label_offset * (y_center - start_pos) + start_pos;
 				Vector3 label_pos_theta_2 = angle_label_offset * (x_z_center - end_pos) + end_pos;
 				Vector3 label_pos_phi_1 = angle_label_offset * (x_center - Vector3(start_pos.x, min_y, start_pos.z)) + Vector3(start_pos.x, min_y, start_pos.z);
 				Vector3 label_pos_phi_2 = angle_label_offset * (z_center - Vector3(end_pos.x, min_y, end_pos.z)) + Vector3(end_pos.x, min_y, end_pos.z);
 
-				// Convert label positions to screen space
 				Vector2 x_screen_pos = camera->unproject_position(x_center) - (ruler_label_x->get_custom_minimum_size() / 2);
 				Vector2 y_screen_pos = camera->unproject_position(y_center) - (ruler_label_y->get_custom_minimum_size() / 2);
 				Vector2 z_screen_pos = camera->unproject_position(z_center) - (ruler_label_z->get_custom_minimum_size() / 2);
@@ -3119,6 +3120,8 @@ void Node3DEditorViewport::_notification(int p_what) {
 				Vector2 angle_phi_1_screen_pos = camera->unproject_position(label_pos_phi_1) - (angle_label_phi_1->get_custom_minimum_size() / 2);
 				Vector2 angle_phi_2_screen_pos = camera->unproject_position(label_pos_phi_2) - (angle_label_phi_2->get_custom_minimum_size() / 2);
 
+				// Set labels position
+				ruler_label->set_position(screen_position);
 				ruler_label_x->set_position(x_screen_pos);
 				ruler_label_y->set_position(y_screen_pos);
 				ruler_label_z->set_position(z_screen_pos);
