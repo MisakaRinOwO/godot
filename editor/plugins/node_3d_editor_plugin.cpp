@@ -3070,10 +3070,10 @@ void Node3DEditorViewport::_notification(int p_what) {
 				ruler_label_z->set_text(TS->format_number(vformat("z: %.3f m", distance_z)));
 				ruler_label_x_z->set_text(TS->format_number(vformat("x-z: %.3f m", distance_x_z)));
 
-				angle_label_theta_1->set_text(TS->format_number(vformat("theta_1: %.3f%c", angle_theta_1, 176)));
-				angle_label_theta_2->set_text(TS->format_number(vformat("theta_2: %.3f%c", angle_theta_2, 176)));
-				angle_label_phi_1->set_text(TS->format_number(vformat("phi_1: %.3f%c", angle_phi_1, 176)));
-				angle_label_phi_2->set_text(TS->format_number(vformat("phi_2: %.3f%c", angle_phi_2, 176)));
+				angle_label_theta_1->set_text(TS->format_number(vformat("%.3f%c", angle_theta_1, 176)));
+				angle_label_theta_2->set_text(TS->format_number(vformat("%.3f%c", angle_theta_2, 176)));
+				angle_label_phi_1->set_text(TS->format_number(vformat("%.3f%c", angle_phi_1, 176)));
+				angle_label_phi_2->set_text(TS->format_number(vformat("%.3f%c", angle_phi_2, 176)));
 
 				// Hide XZ label when stacking over
 				if (distance_x <= 0.0001 || distance_z <= 0.0001 || distance_y <= 0.0001) {
@@ -3479,26 +3479,26 @@ void Node3DEditorViewport::_notification(int p_what) {
 			ruler_label_x_z->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			ruler_label_x_z->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
-			angle_label_theta_1->add_theme_color_override(SceneStringName(font_color), Color(1.0, 1.0, 1.0, 1.0));
-			angle_label_theta_1->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			angle_label_theta_1->add_theme_color_override(SceneStringName(font_color), Color(1.0, 0.9, 0.0, 1.0));
+			angle_label_theta_1->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.5));
 			angle_label_theta_1->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			angle_label_theta_1->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			angle_label_theta_1->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
-			angle_label_theta_2->add_theme_color_override(SceneStringName(font_color), Color(1.0, 1.0, 1.0, 1.0));
-			angle_label_theta_2->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			angle_label_theta_2->add_theme_color_override(SceneStringName(font_color), Color(1.0, 0.9, 0.0, 1.0));
+			angle_label_theta_2->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.5));
 			angle_label_theta_2->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			angle_label_theta_2->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			angle_label_theta_2->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
-			angle_label_phi_1->add_theme_color_override(SceneStringName(font_color), Color(1.0, 1.0, 1.0, 1.0));
-			angle_label_phi_1->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			angle_label_phi_1->add_theme_color_override(SceneStringName(font_color), Color(0.98, 0.616, 0.149, 1.0));
+			angle_label_phi_1->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.5));
 			angle_label_phi_1->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			angle_label_phi_1->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			angle_label_phi_1->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
-			angle_label_phi_2->add_theme_color_override(SceneStringName(font_color), Color(1.0, 1.0, 1.0, 1.0));
-			angle_label_phi_2->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			angle_label_phi_2->add_theme_color_override(SceneStringName(font_color), Color(0.98, 0.616, 0.149, 1.0));
+			angle_label_phi_2->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.5));
 			angle_label_phi_2->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			angle_label_phi_2->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			angle_label_phi_2->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
