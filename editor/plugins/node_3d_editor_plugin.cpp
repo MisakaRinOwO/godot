@@ -3145,7 +3145,7 @@ void Node3DEditorViewport::_notification(int p_what) {
                     } else {
                         ruler_label_x_z->set_visible(true);
                     }
-                    if (angle_phi_1 <= angle_precision) {
+                    if ((angle_phi_1 <= angle_precision) || (angle_theta_2 < angle_precision)) {
                         ruler_label_x->set_visible(false);
                     } else {
                         ruler_label_x->set_visible(true);
@@ -3155,7 +3155,7 @@ void Node3DEditorViewport::_notification(int p_what) {
                     } else {
                         ruler_label_y->set_visible(true);
                     }
-                    if (angle_phi_2 <= angle_precision) {
+                    if ((angle_phi_2 <= angle_precision) || (angle_theta_2 < angle_precision)) {
                         ruler_label_z->set_visible(false);
                     } else {
                         ruler_label_z->set_visible(true);
