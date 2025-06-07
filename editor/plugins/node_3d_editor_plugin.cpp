@@ -3016,14 +3016,14 @@ void Node3DEditorViewport::_notification(int p_what) {
 				geometry->surface_begin(Mesh::PRIMITIVE_LINES);
 				geometry->surface_add_vertex(start_pos);
 				geometry->surface_add_vertex(end_pos);
-				// Add vertices for vertical helper triangle
+				// Add vertices for helper lines
 				float min_y = MIN(start_pos.y, end_pos.y);
-				// Horizontal helper line
+				// XZ helper line
 				geometry_x_z->surface_begin(Mesh::PRIMITIVE_LINES);
 				geometry_x_z->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
 				geometry_x_z->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
 				geometry_x_z->surface_end();
-				// Vertical helper line
+				// Y helper line
 				geometry_y->surface_begin(Mesh::PRIMITIVE_LINES);
 				if (start_pos.y > end_pos.y) {
 					geometry_y->surface_add_vertex(start_pos);
@@ -3034,6 +3034,7 @@ void Node3DEditorViewport::_notification(int p_what) {
 				}
 				geometry_y->surface_end();
 				// Add vertices for horizontal helper triangle
+				geometry_y->surface_end();
 				// X helper line
 				geometry_x->surface_begin(Mesh::PRIMITIVE_LINES);
 				geometry_x->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
