@@ -3008,31 +3008,43 @@ void Node3DEditorViewport::_notification(int p_what) {
 				Vector3 end_pos = ruler_end_point->get_global_position();
 
 				geometry->clear_surfaces();
+				geometry_x->clear_surfaces();
+				geometry_y->clear_surfaces();
+				geometry_z->clear_surfaces();
+				geometry_x_z->clear_surfaces();
+
 				geometry->surface_begin(Mesh::PRIMITIVE_LINES);
 				geometry->surface_add_vertex(start_pos);
 				geometry->surface_add_vertex(end_pos);
-				// Add vertices for vertical helper triangle
+				// Add vertices for helper lines
 				float min_y = MIN(start_pos.y, end_pos.y);
-				// Horizontal helper line
-				geometry->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
-				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
-				// Vertical helper line
+				// XZ helper line
+				geometry_x_z->surface_begin(Mesh::PRIMITIVE_LINES);
+				geometry_x_z->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
+				geometry_x_z->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
+				geometry_x_z->surface_end();
+				// Y helper line
+				geometry_y->surface_begin(Mesh::PRIMITIVE_LINES);
 				if (start_pos.y > end_pos.y) {
-					geometry->surface_add_vertex(start_pos);
-					geometry->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
+					geometry_y->surface_add_vertex(start_pos);
+					geometry_y->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
 				} else {
-					geometry->surface_add_vertex(end_pos);
-					geometry->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
+					geometry_y->surface_add_vertex(end_pos);
+					geometry_y->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
 				}
-				// Add vertices for horizontal helper triangle
+				geometry_y->surface_end();
 				// X helper line
-				geometry->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
-				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
+				geometry_x->surface_begin(Mesh::PRIMITIVE_LINES);
+				geometry_x->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
+				geometry_x->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
+				geometry_x->surface_end();
 				// Z helper line
-				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
-				geometry->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
-				geometry->surface_end();
+				geometry_z->surface_begin(Mesh::PRIMITIVE_LINES);
+				geometry_z->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
+				geometry_z->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
+				geometry_z->surface_end();
 
+				geometry->surface_end();
 				float distance = start_pos.distance_to(end_pos);
 				ruler_label->set_text(TS->format_number(vformat("r: %.3f m", distance)));
 
@@ -3041,10 +3053,18 @@ void Node3DEditorViewport::_notification(int p_what) {
                 float distance_z = fabsf(end_pos.z - start_pos.z);
                 float distance_x_z = sqrtf(distance_x*distance_x + distance_z*distance_z);
 
+
                 ruler_label_x->set_text(TS->format_number(vformat("x: %.3f m", distance_x)));
                 ruler_label_y->set_text(TS->format_number(vformat("y: %.3f m", distance_y)));
                 ruler_label_z->set_text(TS->format_number(vformat("z: %.3f m", distance_z)));
                 ruler_label_x_z->set_text(TS->format_number(vformat("x-z: %.3f m", distance_x_z)));
+
+				// Hide XZ label when stacking over
+				if (distance_x <= 0.0001 || distance_z <= 0.0001 || distance_y <= 0.0001) {
+					ruler_label_x_z->set_visible(false);
+				} else {
+					ruler_label_x_z->set_visible(true);
+				}
 
 				Vector3 center = (start_pos + end_pos) / 2;
 				Vector2 screen_position = camera->unproject_position(center) - (ruler_label->get_custom_minimum_size() / 2);
@@ -3052,7 +3072,7 @@ void Node3DEditorViewport::_notification(int p_what) {
 
                 Vector3 diff = (end_pos - start_pos) / 2;
 
-                Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z); 
+                Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z);
                 Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
                 if (start_pos.y > end_pos.y) {
                     y_center = Vector3(start_pos.x, start_pos.y + diff.y, start_pos.z);
@@ -3402,25 +3422,25 @@ void Node3DEditorViewport::_notification(int p_what) {
 			ruler_label->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
 			ruler_label_x->add_theme_color_override(SceneStringName(font_color), Color(0.96, 0.20, 0.32, 1.0));
-			ruler_label_x->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			ruler_label_x->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.5));
 			ruler_label_x->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			ruler_label_x->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			ruler_label_x->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
 			ruler_label_y->add_theme_color_override(SceneStringName(font_color), Color(0.53, 0.84, 0.01, 1.0));
-			ruler_label_y->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			ruler_label_y->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.5));
 			ruler_label_y->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			ruler_label_y->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			ruler_label_y->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
 			ruler_label_z->add_theme_color_override(SceneStringName(font_color), Color(0.16, 0.55, 0.96, 1.0));
-			ruler_label_z->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			ruler_label_z->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.5));
 			ruler_label_z->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			ruler_label_z->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			ruler_label_z->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
-			ruler_label_x_z->add_theme_color_override(SceneStringName(font_color), Color(0.56, 0.375, 0.64, 1.0));
-			ruler_label_x_z->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			ruler_label_x_z->add_theme_color_override(SceneStringName(font_color), Color(0.98, 0.616, 0.149, 1.0));
+			ruler_label_x_z->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.5));
 			ruler_label_x_z->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			ruler_label_x_z->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			ruler_label_x_z->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
@@ -6030,13 +6050,13 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 
 	// X materials (Red)
 	ruler_material_x.instantiate();
-	ruler_material_x->set_albedo(Color(1.0, 0.0, 0.0, 1.0));
+	ruler_material_x->set_albedo(Color(0.96, 0.20, 0.32, 1.0));
 	ruler_material_x->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
 	ruler_material_x->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
 	ruler_material_x->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_DISABLED);
 
 	ruler_material_x_xray.instantiate();
-	ruler_material_x_xray->set_albedo(Color(1.0, 0.0, 0.0, 0.15));
+	ruler_material_x_xray->set_albedo(Color(0.96, 0.20, 0.32, 0.15));
 	ruler_material_x_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
 	ruler_material_x_xray->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
 	ruler_material_x_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
@@ -6045,13 +6065,13 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 
 	// Y materials (Green)
 	ruler_material_y.instantiate();
-	ruler_material_y->set_albedo(Color(0.0, 1.0, 0.0, 1.0));
+	ruler_material_y->set_albedo(Color(0.53, 0.84, 0.01, 1.0));
 	ruler_material_y->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
 	ruler_material_y->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
 	ruler_material_y->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_DISABLED);
 
 	ruler_material_y_xray.instantiate();
-	ruler_material_y_xray->set_albedo(Color(0.0, 1.0, 0.0, 0.15));
+	ruler_material_y_xray->set_albedo(Color(0.53, 0.84, 0.01, 0.15));
 	ruler_material_y_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
 	ruler_material_y_xray->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
 	ruler_material_y_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
@@ -6060,20 +6080,40 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 
 	// Z materials (Blue)
 	ruler_material_z.instantiate();
-	ruler_material_z->set_albedo(Color(0.0, 0.0, 1.0, 1.0));
+	ruler_material_z->set_albedo(Color(0.16, 0.55, 0.96, 1.0));
 	ruler_material_z->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
 	ruler_material_z->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
 	ruler_material_z->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_DISABLED);
 
 	ruler_material_z_xray.instantiate();
-	ruler_material_z_xray->set_albedo(Color(0.0, 0.0, 1.0, 0.15));
+	ruler_material_z_xray->set_albedo(Color(0.16, 0.55, 0.96, 0.15));
 	ruler_material_z_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
 	ruler_material_z_xray->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
 	ruler_material_z_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
 	ruler_material_z_xray->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA);
 	ruler_material_z_xray->set_render_priority(BaseMaterial3D::RENDER_PRIORITY_MAX);
 
+	// XZ materials (Orange)
+	ruler_material_x_z.instantiate();
+	ruler_material_x_z->set_albedo(Color(0.98, 0.616, 0.149, 1.0));
+	ruler_material_x_z->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
+	ruler_material_x_z->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	ruler_material_x_z->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_DISABLED);
+
+	ruler_material_x_z_xray.instantiate();
+	ruler_material_x_z_xray->set_albedo(Color(0.98, 0.616, 0.149, 0.15));
+	ruler_material_x_z_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
+	ruler_material_x_z_xray->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	ruler_material_x_z_xray->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
+	ruler_material_x_z_xray->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA);
+	ruler_material_x_z_xray->set_render_priority(BaseMaterial3D::RENDER_PRIORITY_MAX);
+
+
 	geometry.instantiate();
+	geometry_x.instantiate();
+	geometry_y.instantiate();
+	geometry_z.instantiate();
+	geometry_x_z.instantiate();
 
 	ruler_line = memnew(MeshInstance3D);
 	ruler_line->set_mesh(geometry);
@@ -6082,6 +6122,42 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	ruler_line_xray = memnew(MeshInstance3D);
 	ruler_line_xray->set_mesh(geometry);
 	ruler_line_xray->set_material_override(ruler_material_xray);
+
+	// X helper line in Red
+	ruler_line_x = memnew(MeshInstance3D);
+	ruler_line_x->set_mesh(geometry_x);
+	ruler_line_x->set_material_override(ruler_material_x);
+
+	ruler_line_x_xray = memnew(MeshInstance3D);
+	ruler_line_x_xray->set_mesh(geometry_x);
+	ruler_line_x_xray->set_material_override(ruler_material_x_xray);
+
+	// Y helper line in Green
+	ruler_line_y = memnew(MeshInstance3D);
+	ruler_line_y->set_mesh(geometry_y);
+	ruler_line_y->set_material_override(ruler_material_y);
+
+	ruler_line_y_xray = memnew(MeshInstance3D);
+	ruler_line_y_xray->set_mesh(geometry_y);
+	ruler_line_y_xray->set_material_override(ruler_material_y_xray);
+
+	// Z helper line in Blue
+	ruler_line_z = memnew(MeshInstance3D);
+	ruler_line_z->set_mesh(geometry_z);
+	ruler_line_z->set_material_override(ruler_material_z);
+
+	ruler_line_z_xray = memnew(MeshInstance3D);
+	ruler_line_z_xray->set_mesh(geometry_z);
+	ruler_line_z_xray->set_material_override(ruler_material_z_xray);
+
+	// XZ helper line in Orange
+	ruler_line_x_z = memnew(MeshInstance3D);
+	ruler_line_x_z->set_mesh(geometry_x_z);
+	ruler_line_x_z->set_material_override(ruler_material_x_z);
+
+	ruler_line_x_z_xray = memnew(MeshInstance3D);
+	ruler_line_x_z_xray->set_mesh(geometry_x_z);
+	ruler_line_x_z_xray->set_material_override(ruler_material_x_z_xray);
 
 	ruler_label = memnew(Label);
 	ruler_label->set_visible(false);
@@ -6102,6 +6178,14 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	ruler->add_child(ruler_end_point);
 	ruler->add_child(ruler_line);
 	ruler->add_child(ruler_line_xray);
+	ruler->add_child(ruler_line_x);
+	ruler->add_child(ruler_line_x_xray);
+	ruler->add_child(ruler_line_y);
+	ruler->add_child(ruler_line_y_xray);
+	ruler->add_child(ruler_line_z);
+	ruler->add_child(ruler_line_z_xray);
+	ruler->add_child(ruler_line_x_z);
+	ruler->add_child(ruler_line_x_z_xray);
 
 	viewport->add_child(ruler_label);
 	viewport->add_child(ruler_label_x);
