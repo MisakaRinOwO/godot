@@ -3021,38 +3021,31 @@ void Node3DEditorViewport::_notification(int p_what) {
 				geometry->surface_add_vertex(start_pos);
 				geometry->surface_add_vertex(end_pos);
 
-				// Add vertices for helper lines
-				float min_y = MIN(start_pos.y, end_pos.y);
-
 				// XZ helper line
 				if (abs(start_pos.z - end_pos.z) > 0.0001 && abs(start_pos.x - end_pos.x) > 0.0001) {
 					geometry_x_z->surface_begin(Mesh::PRIMITIVE_LINES);
-					geometry_x_z->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
-					geometry_x_z->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
+					geometry_x_z->surface_add_vertex(start_pos);
+					geometry_x_z->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
 					geometry_x_z->surface_end();
 				}
 
 				// Y helper line
 				geometry_y->surface_begin(Mesh::PRIMITIVE_LINES);
-				if (start_pos.y > end_pos.y) {
-					geometry_y->surface_add_vertex(start_pos);
-					geometry_y->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
-				} else {
-					geometry_y->surface_add_vertex(end_pos);
-					geometry_y->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
-				}
+
+                geometry_y->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
+                geometry_y->surface_add_vertex(end_pos);
 				geometry_y->surface_end();
 
 				// X helper line
 				geometry_x->surface_begin(Mesh::PRIMITIVE_LINES);
-				geometry_x->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
-				geometry_x->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
+				geometry_x->surface_add_vertex(Vector3(start_pos.x, start_pos.y, end_pos.z));
+				geometry_x->surface_add_vertex(Vector3(end_pos.x, start_pos.y, end_pos.z));
 				geometry_x->surface_end();
 
 				// Z helper line
 				geometry_z->surface_begin(Mesh::PRIMITIVE_LINES);
-				geometry_z->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
-				geometry_z->surface_add_vertex(Vector3(end_pos.x, min_y, start_pos.z));
+				geometry_z->surface_add_vertex(Vector3(start_pos.x, start_pos.y, end_pos.z));
+				geometry_z->surface_add_vertex(Vector3(start_pos.x, start_pos.y, start_pos.z));
 				geometry_z->surface_end();
 
 				geometry->surface_end();
@@ -3064,11 +3057,11 @@ void Node3DEditorViewport::_notification(int p_what) {
 				float distance_z = abs(end_pos.z - start_pos.z);
 				float distance_x_z = sqrt(distance_x * distance_x + distance_z * distance_z);
 
-				// Calculate angles
-				float angle_theta_1 = atan(distance_x / distance_y) * 180 / Math::PI;
-				float angle_theta_2 = 90 - angle_theta_1;
-				float angle_phi_1 = atan(distance_y / distance_z) * 180 / Math::PI;
+				// Angle calculations
+				float angle_phi_1 = atan(distance_x / distance_z) * 180 / Math::PI;
 				float angle_phi_2 = 90 - angle_phi_1;
+				float angle_theta_1 = atan(distance_y / distance_x_z) * 180 / Math::PI;
+				float angle_theta_2 = 90 - angle_theta_1;
 
 				// Set label value
 				ruler_label->set_text(TS->format_number(vformat("r: %.3f m", distance)));
@@ -3095,20 +3088,17 @@ void Node3DEditorViewport::_notification(int p_what) {
 
 				Vector3 diff = (end_pos - start_pos) / 2;
 
-				Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z);
+				Vector3 x_center = Vector3(start_pos.x + diff.x, start_pos.y, end_pos.z);
 				Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
-				if (start_pos.y > end_pos.y) {
-					y_center = Vector3(start_pos.x, start_pos.y + diff.y, start_pos.z);
-				}
-				Vector3 z_center = Vector3(end_pos.x, min_y, start_pos.z + diff.z);
-				Vector3 x_z_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z + diff.z);
+				Vector3 z_center = Vector3(start_pos.x, start_pos.y, start_pos.z + diff.z);
+				Vector3 x_z_center = Vector3(start_pos.x + diff.x, start_pos.y, start_pos.z + diff.z);
 
 				const float angle_label_offset = 0.15f;
 
 				Vector3 label_pos_theta_1 = angle_label_offset * (y_center - start_pos) + start_pos;
 				Vector3 label_pos_theta_2 = angle_label_offset * (x_z_center - end_pos) + end_pos;
-				Vector3 label_pos_phi_1 = angle_label_offset * (x_center - Vector3(start_pos.x, min_y, start_pos.z)) + Vector3(start_pos.x, min_y, start_pos.z);
-				Vector3 label_pos_phi_2 = angle_label_offset * (z_center - Vector3(end_pos.x, min_y, end_pos.z)) + Vector3(end_pos.x, min_y, end_pos.z);
+				Vector3 label_pos_phi_1 = angle_label_offset * (x_center - start_pos) + start_pos;
+				Vector3 label_pos_phi_2 = angle_label_offset * (z_center - Vector3(end_pos.x, start_pos.y, end_pos.z)) + Vector3(end_pos.x, start_pos.y, end_pos.z);
 
 				Vector2 x_screen_pos = camera->unproject_position(x_center) - (ruler_label_x->get_custom_minimum_size() / 2);
 				Vector2 y_screen_pos = camera->unproject_position(y_center) - (ruler_label_y->get_custom_minimum_size() / 2);
