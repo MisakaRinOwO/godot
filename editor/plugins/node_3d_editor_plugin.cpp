@@ -3023,10 +3023,12 @@ void Node3DEditorViewport::_notification(int p_what) {
 				// Add vertices for helper lines
 				float min_y = MIN(start_pos.y, end_pos.y);
 				// XZ helper line
-				geometry_x_z->surface_begin(Mesh::PRIMITIVE_LINES);
-				geometry_x_z->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
-				geometry_x_z->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
-				geometry_x_z->surface_end();
+				if (abs(start_pos.z - end_pos.z) > 0.0001 && abs(start_pos.x - end_pos.x) > 0.0001) {
+					geometry_x_z->surface_begin(Mesh::PRIMITIVE_LINES);
+					geometry_x_z->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
+					geometry_x_z->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
+					geometry_x_z->surface_end();
+				}
 				// Y helper line
 				geometry_y->surface_begin(Mesh::PRIMITIVE_LINES);
 				if (start_pos.y > end_pos.y) {
@@ -3093,9 +3095,11 @@ void Node3DEditorViewport::_notification(int p_what) {
 				Vector3 diff = (end_pos - start_pos) / 2;
 
 				Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z);
-				Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
+				Vector3 y_center;
 				if (start_pos.y > end_pos.y) {
 					y_center = Vector3(start_pos.x, start_pos.y + diff.y, start_pos.z);
+				} else {
+					y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
 				}
 				Vector3 z_center = Vector3(end_pos.x, min_y, start_pos.z + diff.z);
 				Vector3 x_z_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z + diff.z);
