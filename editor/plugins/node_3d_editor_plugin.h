@@ -235,10 +235,10 @@ private:
 	MeshInstance3D *ruler_line_x_z = nullptr;
 	MeshInstance3D *ruler_line_x_z_xray = nullptr;
 	Label *ruler_label = nullptr;
-    Label *ruler_label_x = nullptr;
-    Label *ruler_label_y = nullptr;
-    Label *ruler_label_z = nullptr;
-    Label *ruler_label_x_z = nullptr;
+	Label *ruler_label_x = nullptr;
+	Label *ruler_label_y = nullptr;
+	Label *ruler_label_z = nullptr;
+	Label *ruler_label_x_z = nullptr;
 
 	Label *angle_label_theta_1 = nullptr;
 	Label *angle_label_theta_2 = nullptr;

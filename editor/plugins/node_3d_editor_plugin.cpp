@@ -3060,15 +3060,15 @@ void Node3DEditorViewport::_notification(int p_what) {
 				ruler_label->set_text(TS->format_number(vformat("r: %.3f m", distance)));
 
 				// Distance calculations for Ruler
-				float distance_x = fabsf(end_pos.x - start_pos.x);
-				float distance_y = fabsf(end_pos.y - start_pos.y);
-				float distance_z = fabsf(end_pos.z - start_pos.z);
-				float distance_x_z = sqrtf(distance_x * distance_x + distance_z * distance_z);
+				float distance_x = abs(end_pos.x - start_pos.x);
+				float distance_y = abs(end_pos.y - start_pos.y);
+				float distance_z = abs(end_pos.z - start_pos.z);
+				float distance_x_z = sqrt(distance_x * distance_x + distance_z * distance_z);
 
 				// Angle calculations
 				float angle_theta_1 = atan(distance_x / distance_y) * 180 / Math::PI;
 				float angle_theta_2 = 90 - angle_theta_1;
-				float angle_phi_1 = atan(distance_y / distance_x_z) * 180 / Math::PI;
+				float angle_phi_1 = atan(distance_y / distance_z) * 180 / Math::PI;
 				float angle_phi_2 = 90 - angle_phi_1;
 
 				// Ruler labels
