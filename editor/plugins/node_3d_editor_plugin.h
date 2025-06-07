@@ -239,13 +239,17 @@ private:
     Label *ruler_label_y = nullptr;
     Label *ruler_label_z = nullptr;
     Label *ruler_label_x_z = nullptr;
-	Ref<StandardMaterial3D> ruler_material;
 
+	Label *angle_label_theta_1 = nullptr;
+	Label *angle_label_theta_2 = nullptr;
+	Label *angle_label_phi_1 = nullptr;
+	Label *angle_label_phi_2 = nullptr;
+
+	Ref<StandardMaterial3D> ruler_material;
 	Ref<StandardMaterial3D> ruler_material_x;
 	Ref<StandardMaterial3D> ruler_material_y;
 	Ref<StandardMaterial3D> ruler_material_z;
 	Ref<StandardMaterial3D> ruler_material_x_z;
-
 	Ref<StandardMaterial3D> ruler_material_xray;
 	Ref<StandardMaterial3D> ruler_material_x_xray;
 	Ref<StandardMaterial3D> ruler_material_y_xray;

@@ -1994,6 +1994,10 @@ void Node3DEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 						ruler_label_y->set_visible(false);
 						ruler_label_z->set_visible(false);
 						ruler_label_x_z->set_visible(false);
+						angle_label_theta_1->set_visible(false);
+						angle_label_theta_2->set_visible(false);
+						angle_label_phi_1->set_visible(false);
+						angle_label_phi_2->set_visible(false);
 						collision_reposition = false;
 						break;
 					}
@@ -3033,8 +3037,6 @@ void Node3DEditorViewport::_notification(int p_what) {
 					geometry_y->surface_add_vertex(Vector3(end_pos.x, min_y, end_pos.z));
 				}
 				geometry_y->surface_end();
-				// Add vertices for horizontal helper triangle
-				geometry_y->surface_end();
 				// X helper line
 				geometry_x->surface_begin(Mesh::PRIMITIVE_LINES);
 				geometry_x->surface_add_vertex(Vector3(start_pos.x, min_y, start_pos.z));
@@ -3050,16 +3052,32 @@ void Node3DEditorViewport::_notification(int p_what) {
 				float distance = start_pos.distance_to(end_pos);
 				ruler_label->set_text(TS->format_number(vformat("r: %.3f m", distance)));
 
-                float distance_x = fabsf(end_pos.x - start_pos.x);
-                float distance_y = fabsf(end_pos.y - start_pos.y);
-                float distance_z = fabsf(end_pos.z - start_pos.z);
-                float distance_x_z = sqrtf(distance_x*distance_x + distance_z*distance_z);
+				float distance_x = fabsf(end_pos.x - start_pos.x);
+				float distance_y = fabsf(end_pos.y - start_pos.y);
+				float distance_z = fabsf(end_pos.z - start_pos.z);
+				float distance_x_z = sqrtf(distance_x * distance_x + distance_z * distance_z);
 
+				float angle_theta_1 = atan(distance_x / distance_y) * 180 / Math::PI;
+				float angle_theta_2 = 90 - angle_theta_1;
 
-                ruler_label_x->set_text(TS->format_number(vformat("x: %.3f m", distance_x)));
-                ruler_label_y->set_text(TS->format_number(vformat("y: %.3f m", distance_y)));
-                ruler_label_z->set_text(TS->format_number(vformat("z: %.3f m", distance_z)));
-                ruler_label_x_z->set_text(TS->format_number(vformat("x-z: %.3f m", distance_x_z)));
+				float angle_phi_1 = atan(distance_y / distance_x_z) * 180 / Math::PI;
+				float angle_phi_2 = 90 - angle_phi_1;
+
+				ruler_label_x->set_text(TS->format_number(vformat("x: %.3f m", distance_x)));
+				ruler_label_y->set_text(TS->format_number(vformat("y: %.3f m", distance_y)));
+				ruler_label_z->set_text(TS->format_number(vformat("z: %.3f m", distance_z)));
+				ruler_label_x_z->set_text(TS->format_number(vformat("x-z: %.3f m", distance_x_z)));
+
+				angle_label_theta_1->set_text(TS->format_number(vformat("theta_1: %.3f%c", angle_theta_1, 176)));
+				angle_label_theta_2->set_text(TS->format_number(vformat("theta_2: %.3f%c", angle_theta_2, 176)));
+				angle_label_phi_1->set_text(TS->format_number(vformat("phi_1: %.3f%c", angle_phi_1, 176)));
+				angle_label_phi_2->set_text(TS->format_number(vformat("phi_2: %.3f%c", angle_phi_2, 176)));
+
+				auto angle_bisector = [](const Vector3 &vertex, const Vector3 &adj1, const Vector3 &adj2) {
+					Vector3 v1 = (adj1 - vertex).normalized();
+					Vector3 v2 = (adj2 - vertex).normalized();
+					return (v1 + v2).normalized();
+				};
 
 				// Hide XZ label when stacking over
 				if (distance_x <= 0.0001 || distance_z <= 0.0001 || distance_y <= 0.0001) {
@@ -3072,27 +3090,43 @@ void Node3DEditorViewport::_notification(int p_what) {
 				Vector2 screen_position = camera->unproject_position(center) - (ruler_label->get_custom_minimum_size() / 2);
 				ruler_label->set_position(screen_position);
 
-                Vector3 diff = (end_pos - start_pos) / 2;
+				Vector3 diff = (end_pos - start_pos) / 2;
 
-                Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z);
-                Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
-                if (start_pos.y > end_pos.y) {
-                    y_center = Vector3(start_pos.x, start_pos.y + diff.y, start_pos.z);
-                }
-                Vector3 z_center = Vector3(end_pos.x, min_y, start_pos.z + diff.z);
-                Vector3 x_z_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z + diff.z);
+				Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z);
+				Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
+				if (start_pos.y > end_pos.y) {
+					y_center = Vector3(start_pos.x, start_pos.y + diff.y, start_pos.z);
+				}
+				Vector3 z_center = Vector3(end_pos.x, min_y, start_pos.z + diff.z);
+				Vector3 x_z_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z + diff.z);
 
-                Vector2 x_screen_pos = camera->unproject_position(x_center) - (ruler_label_x->get_custom_minimum_size() / 2);
-                Vector2 y_screen_pos = camera->unproject_position(y_center) - (ruler_label_y->get_custom_minimum_size() / 2);
-                Vector2 z_screen_pos = camera->unproject_position(z_center) - (ruler_label_z->get_custom_minimum_size() / 2);
-                Vector2 x_z_screen_pos = camera->unproject_position(x_z_center) - (ruler_label_x_z->get_custom_minimum_size() / 2);
+				const float label_offset = 0.15f;
 
+				Vector3 label_pos_theta_1 = label_offset * (y_center - start_pos) + start_pos;
+				Vector3 label_pos_theta_2 = label_offset * (x_z_center - end_pos) + end_pos;
+				Vector3 label_pos_phi_1 = label_offset * (x_center - Vector3(start_pos.x, min_y, start_pos.z)) + Vector3(start_pos.x, min_y, start_pos.z);
+				Vector3 label_pos_phi_2 = label_offset * (z_center - Vector3(end_pos.x, min_y, end_pos.z)) + Vector3(end_pos.x, min_y, end_pos.z);
 
-                ruler_label_x->set_position(x_screen_pos);
-                ruler_label_y->set_position(y_screen_pos);
-                ruler_label_z->set_position(z_screen_pos);
-                ruler_label_x_z->set_position(x_z_screen_pos);
+				Vector2 x_screen_pos = camera->unproject_position(x_center) - (ruler_label_x->get_custom_minimum_size() / 2);
+				Vector2 y_screen_pos = camera->unproject_position(y_center) - (ruler_label_y->get_custom_minimum_size() / 2);
+				Vector2 z_screen_pos = camera->unproject_position(z_center) - (ruler_label_z->get_custom_minimum_size() / 2);
+				Vector2 x_z_screen_pos = camera->unproject_position(x_z_center) - (ruler_label_x_z->get_custom_minimum_size() / 2);
 
+				Vector2 angle_theta_1_screen_pos = camera->unproject_position(label_pos_theta_1) - (angle_label_theta_1->get_custom_minimum_size() / 2);
+				Vector2 angle_theta_2_screen_pos = camera->unproject_position(label_pos_theta_2) - (angle_label_theta_2->get_custom_minimum_size() / 2);
+				Vector2 angle_phi_1_screen_pos = camera->unproject_position(label_pos_phi_1) - (angle_label_phi_1->get_custom_minimum_size() / 2);
+				Vector2 angle_phi_2_screen_pos = camera->unproject_position(label_pos_phi_2) - (angle_label_phi_2->get_custom_minimum_size() / 2);
+
+				ruler_label_x->set_position(x_screen_pos);
+				ruler_label_y->set_position(y_screen_pos);
+				ruler_label_z->set_position(z_screen_pos);
+				ruler_label_x_z->set_position(x_z_screen_pos);
+
+				angle_label_theta_1->set_position(angle_theta_1_screen_pos);
+				angle_label_theta_2->set_position(angle_theta_2_screen_pos);
+
+				angle_label_phi_1->set_position(angle_phi_1_screen_pos);
+				angle_label_phi_2->set_position(angle_phi_2_screen_pos);
 			}
 
 			real_t delta = get_process_delta_time();
@@ -3341,10 +3375,15 @@ void Node3DEditorViewport::_notification(int p_what) {
 						ruler_start_point->set_visible(true);
 						ruler_end_point->set_visible(true);
 						ruler_label->set_visible(true);
-                        ruler_label_x->set_visible(true);
-                        ruler_label_y->set_visible(true);
-                        ruler_label_z->set_visible(true);
-                        ruler_label_x_z->set_visible(true);
+						ruler_label_x->set_visible(true);
+						ruler_label_y->set_visible(true);
+						ruler_label_z->set_visible(true);
+						ruler_label_x_z->set_visible(true);
+
+						angle_label_theta_1->set_visible(true);
+						angle_label_theta_2->set_visible(true);
+						angle_label_phi_1->set_visible(true);
+						angle_label_phi_2->set_visible(true);
 					}
 				}
 			}
@@ -3446,6 +3485,30 @@ void Node3DEditorViewport::_notification(int p_what) {
 			ruler_label_x_z->add_theme_constant_override("outline_size", 4 * EDSCALE);
 			ruler_label_x_z->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
 			ruler_label_x_z->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
+			angle_label_theta_1->add_theme_color_override(SceneStringName(font_color), Color(1.0, 1.0, 1.0, 1.0));
+			angle_label_theta_1->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			angle_label_theta_1->add_theme_constant_override("outline_size", 4 * EDSCALE);
+			angle_label_theta_1->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
+			angle_label_theta_1->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
+			angle_label_theta_2->add_theme_color_override(SceneStringName(font_color), Color(1.0, 1.0, 1.0, 1.0));
+			angle_label_theta_2->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			angle_label_theta_2->add_theme_constant_override("outline_size", 4 * EDSCALE);
+			angle_label_theta_2->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
+			angle_label_theta_2->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
+			angle_label_phi_1->add_theme_color_override(SceneStringName(font_color), Color(1.0, 1.0, 1.0, 1.0));
+			angle_label_phi_1->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			angle_label_phi_1->add_theme_constant_override("outline_size", 4 * EDSCALE);
+			angle_label_phi_1->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
+			angle_label_phi_1->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
+
+			angle_label_phi_2->add_theme_color_override(SceneStringName(font_color), Color(1.0, 1.0, 1.0, 1.0));
+			angle_label_phi_2->add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.0));
+			angle_label_phi_2->add_theme_constant_override("outline_size", 4 * EDSCALE);
+			angle_label_phi_2->add_theme_font_size_override(SceneStringName(font_size), 10 * EDSCALE);
+			angle_label_phi_2->add_theme_font_override(SceneStringName(font), get_theme_font(SNAME("bold"), EditorStringName(EditorFonts)));
 
 		} break;
 
@@ -6035,7 +6098,7 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	ruler_end_point = memnew(Node3D);
 	ruler_end_point->set_visible(false);
 
-	// Main material (Yellow)
+	// Ruler material
 	ruler_material.instantiate();
 	ruler_material->set_albedo(Color(1.0, 0.9, 0.0, 1.0));
 	ruler_material->set_flag(BaseMaterial3D::FLAG_DISABLE_FOG, true);
@@ -6110,7 +6173,6 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	ruler_material_x_z_xray->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA);
 	ruler_material_x_z_xray->set_render_priority(BaseMaterial3D::RENDER_PRIORITY_MAX);
 
-
 	geometry.instantiate();
 	geometry_x.instantiate();
 	geometry_y.instantiate();
@@ -6176,6 +6238,18 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	ruler_label_x_z = memnew(Label);
 	ruler_label_x_z->set_visible(false);
 
+	angle_label_theta_1 = memnew(Label);
+	angle_label_theta_1->set_visible(false);
+
+	angle_label_theta_2 = memnew(Label);
+	angle_label_theta_2->set_visible(false);
+
+	angle_label_phi_1 = memnew(Label);
+	angle_label_phi_1->set_visible(false);
+
+	angle_label_phi_2 = memnew(Label);
+	angle_label_phi_2->set_visible(false);
+
 	ruler->add_child(ruler_start_point);
 	ruler->add_child(ruler_end_point);
 	ruler->add_child(ruler_line);
@@ -6194,6 +6268,11 @@ Node3DEditorViewport::Node3DEditorViewport(Node3DEditor *p_spatial_editor, int p
 	viewport->add_child(ruler_label_y);
 	viewport->add_child(ruler_label_z);
 	viewport->add_child(ruler_label_x_z);
+
+	viewport->add_child(angle_label_theta_1);
+	viewport->add_child(angle_label_theta_2);
+	viewport->add_child(angle_label_phi_1);
+	viewport->add_child(angle_label_phi_2);
 
 	view_type = VIEW_TYPE_USER;
 	_update_name();
