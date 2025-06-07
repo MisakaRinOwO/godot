@@ -3095,9 +3095,11 @@ void Node3DEditorViewport::_notification(int p_what) {
 				Vector3 diff = (end_pos - start_pos) / 2;
 
 				Vector3 x_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z);
-				Vector3 y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
+				Vector3 y_center;
 				if (start_pos.y > end_pos.y) {
 					y_center = Vector3(start_pos.x, start_pos.y + diff.y, start_pos.z);
+				} else {
+					y_center = Vector3(end_pos.x, start_pos.y + diff.y, end_pos.z);
 				}
 				Vector3 z_center = Vector3(end_pos.x, min_y, start_pos.z + diff.z);
 				Vector3 x_z_center = Vector3(start_pos.x + diff.x, min_y, start_pos.z + diff.z);
