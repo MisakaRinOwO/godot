@@ -3092,6 +3092,7 @@ void Node3DEditorViewport::_notification(int p_what) {
 					Vector3 z_center = Vector3(start_pos.x, start_pos.y, start_pos.z + diff.z);
 					Vector3 x_z_center = Vector3(start_pos.x + diff.x, start_pos.y, start_pos.z + diff.z);
 
+                    // Calculate label position
 					const float angle_label_offset = 0.15f;
 
 					Vector3 label_pos_theta_1 = angle_label_offset * (y_center - start_pos) + start_pos;
@@ -3119,61 +3120,48 @@ void Node3DEditorViewport::_notification(int p_what) {
 					angle_label_phi_1->set_position(angle_phi_1_screen_pos);
 					angle_label_phi_2->set_position(angle_phi_2_screen_pos);
 
-					ruler_label_x->set_visible(true);
-					ruler_label_y->set_visible(true);
-					ruler_label_z->set_visible(true);
+                    // Hide angle label on angle precision
+                    const float angle_precision = 1.0;
+                    const float angle_precision_scaling = 2.0;
+                    
+                    if ((angle_theta_1 <= angle_precision) || (angle_theta_2 <= angle_precision)) {
+                        angle_label_theta_1->set_visible(false);
+                        angle_label_theta_2->set_visible(false);
+                    } else {
+                        angle_label_theta_1->set_visible(true);
+                        angle_label_theta_2->set_visible(true);
+                    }
+                    if ((angle_phi_1 <= angle_precision) || (angle_phi_2 <= angle_precision)) {
+                        angle_label_phi_1->set_visible(false);
+                        angle_label_phi_2->set_visible(false);
+                    } else {
+                        angle_label_phi_1->set_visible(true);
+                        angle_label_phi_2->set_visible(true);
+                    }
 
-					angle_label_theta_1->set_visible(true);
-					angle_label_theta_2->set_visible(true);
-					angle_label_phi_1->set_visible(true);
-					angle_label_phi_2->set_visible(true);
+                    // Hide Component labels on angle precision
+                    if ((angle_phi_1 <= angle_precision_scaling * angle_precision) || (angle_phi_2 <= angle_precision_scaling * angle_precision)) {
+                        ruler_label_x_z->set_visible(false);
+                    } else {
+                        ruler_label_x_z->set_visible(true);
+                    }
+                    if (angle_phi_1 <= angle_precision) {
+                        ruler_label_x->set_visible(false);
+                    } else {
+                        ruler_label_x->set_visible(true);
+                    }
+                    if (angle_theta_1 <= angle_precision) {
+                        ruler_label_y->set_visible(false);
+                    } else {
+                        ruler_label_y->set_visible(true);
+                    }
+                    if (angle_phi_2 <= angle_precision) {
+                        ruler_label_z->set_visible(false);
+                    } else {
+                        ruler_label_z->set_visible(true);
+                    }
 
-					// Hide angle label on 0 or 90(on 2d plane)
-					if (angle_theta_1 <= 0.0001 || abs(90.0 - angle_theta_1) <= 0.0001) {
-						angle_label_theta_1->set_visible(false);
-					} else {
-						angle_label_theta_2->set_visible(true);
-					}
-					if (angle_theta_2 <= 0.0001 || abs(90.0 - angle_theta_2) <= 0.0001) {
-						angle_label_theta_2->set_visible(false);
-					} else {
-						angle_label_theta_1->set_visible(true);
-					}
-					if (angle_phi_1 <= 0.0001 || abs(90.0 - angle_phi_1) <= 0.0001) {
-						angle_label_phi_1->set_visible(false);
-					} else {
-						angle_label_phi_1->set_visible(true);
-					}
-					if (angle_phi_2 <= 0.0001 || abs(90.0 - angle_phi_2) <= 0.0001) {
-						angle_label_phi_2->set_visible(false);
-					} else {
-						angle_label_phi_2->set_visible(true);
-					}
-
-					// Hide XZ label when stacking over
-					if (distance_x <= 0.0001 || distance_z <= 0.0001 || distance_y <= 0.0001) {
-						ruler_label_x_z->set_visible(false);
-					} else {
-						ruler_label_x_z->set_visible(true);
-					}
-
-					// Hide measurement label on 0
-					if (distance_x <= 0.0001) {
-						ruler_label_x->set_visible(false);
-					} else {
-						ruler_label_x->set_visible(true);
-					}
-					if (distance_y <= 0.0001) {
-						ruler_label_y->set_visible(false);
-					} else {
-						ruler_label_y->set_visible(true);
-					}
-					if (distance_z <= 0.0001) {
-						ruler_label_z->set_visible(false);
-					} else {
-						ruler_label_z->set_visible(true);
-					}
-				} else {
+                } else {
 					ruler_label_x->set_visible(false);
 					ruler_label_y->set_visible(false);
 					ruler_label_z->set_visible(false);
