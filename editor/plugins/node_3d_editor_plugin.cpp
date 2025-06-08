@@ -3125,7 +3125,6 @@ void Node3DEditorViewport::_notification(int p_what) {
                     // Hide angle label on angle precision
                     const float angle_precision = 1.0;
                     const float angle_precision_scaling = 2.0;
-                    
                     if ((angle_theta_1 <= angle_precision) || (angle_theta_2 <= angle_precision)) {
                         angle_label_theta_1->set_visible(false);
                         angle_label_theta_2->set_visible(false);
@@ -3140,7 +3139,7 @@ void Node3DEditorViewport::_notification(int p_what) {
                         angle_label_phi_1->set_visible(true);
                         angle_label_phi_2->set_visible(true);
                     }
-
+                    
                     // Hide Component labels on angle precision
                     if ((angle_phi_1 <= angle_precision_scaling * angle_precision) || (angle_phi_2 <= angle_precision_scaling * angle_precision)) {
                         ruler_label_x_z->set_visible(false);
@@ -3163,14 +3162,14 @@ void Node3DEditorViewport::_notification(int p_what) {
                         ruler_label_z->set_visible(true);
                     }
                 } else {
-					ruler_label_x->set_visible(false);
-					ruler_label_y->set_visible(false);
-					ruler_label_z->set_visible(false);
-					ruler_label_x_z->set_visible(false);
-					angle_label_theta_1->set_visible(false);
-					angle_label_theta_2->set_visible(false);
-					angle_label_phi_1->set_visible(false);
-					angle_label_phi_2->set_visible(false);
+                    ruler_label_x->set_visible(false);
+                    ruler_label_y->set_visible(false);
+                    ruler_label_z->set_visible(false);
+                    ruler_label_x_z->set_visible(false);
+                    angle_label_theta_1->set_visible(false);
+                    angle_label_theta_2->set_visible(false);
+                    angle_label_phi_1->set_visible(false);
+                    angle_label_phi_2->set_visible(false);
 				}
 			}
 
